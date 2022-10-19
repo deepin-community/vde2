@@ -1,0 +1,4 @@
+debian/tmp/usr/bin/dpipe
+debian/tmp/usr/bin/vde_plug
+debian/tmp/usr/share/man/man1/dpipe.1
+debian/tmp/usr/share/man/man1/vde_plug.1

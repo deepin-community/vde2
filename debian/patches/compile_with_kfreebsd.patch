@@ -1,0 +1,61 @@
+--- a/src/vde_l3/vde_buff.h
++++ b/src/vde_l3/vde_buff.h
+@@ -27,6 +27,7 @@
+ #define PROTO_UDP 17
+ 
+ #if defined(VDE_FREEBSD) || defined(VDE_DARWIN)
++# ifndef VDE_KFREEBSD
+ struct iphdr
+ {
+ #if BYTE_ORDER == LITTLE_ENDIAN
+@@ -47,6 +48,7 @@
+ 	u_int32_t daddr;
+ 	/*The options start here. */
+ };
++# endif  // VDE_KFREEBSD
+ #endif
+ 
+ struct 
+--- a/src/vde_pcapplug.c
++++ b/src/vde_pcapplug.c
+@@ -23,6 +23,10 @@
+ #include <syslog.h>
+ #include <errno.h>
+ #include <string.h>
++#include <config.h>
++#ifdef VDE_FREEBSD
++#include <net/bpf.h>
++#endif
+ #include <sys/ioctl.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
+@@ -35,7 +39,6 @@
+ #include <pcap.h>
+ #include <limits.h>
+ 
+-#include <config.h>
+ #include <vde.h>
+ #include <vdecommon.h>
+ #include <libvdeplug.h>
+--- a/configure.ac
++++ b/configure.ac
+@@ -108,6 +108,10 @@
+     AC_DEFINE([VDE_DARWIN], 1, [If defined, this is a Darwin system])
+     darwin_gcc=yes
+   ;;
++  kfreebsd*)
++    AC_DEFINE([VDE_FREEBSD], 1, [If defined, this is a FreeBSD system])
++    AC_DEFINE([VDE_KFREEBSD], 1, [If defined, this is a kFreeBSD system])
++  ;;
+   freebsd*)
+     AC_DEFINE([VDE_FREEBSD], 1, [If defined, this is a FreeBSD system])
+   ;;
+@@ -192,7 +196,7 @@
+ http://tuntaposx.sourceforge.net/])
+       fi
+       ;;
+-    freebsd*)
++    kfreebsd*|freebsd*)
+       AC_CHECK_HEADER([net/if_tun.h],
+         [AC_DEFINE([HAVE_TUNTAP], 1, [If defined, tuntap support is compiled in])],
+         [warn_tuntap=yes])
